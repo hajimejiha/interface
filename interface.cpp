@@ -141,7 +141,7 @@ int main(int argc, char *argv[]){
         for(i = 0; i < grid_x; ++i){
             for(j = 0; j < grid_y; ++j){
                 for(k = 0; k < grid_z; ++k){
-                    fprintf(fp, "\n%6.3lf %6.3lf %6.3lf %8.3lf", i*dx+x_0, j*dx+y_0, k*dx+z_0, rho_D[i][j][k]);
+                    fprintf(fp, "\n%6.3lf %6.3lf %6.3lf %10.8lf", i*dx+x_0, j*dx+y_0, k*dx+z_0, rho_D[i][j][k]);
                 }
             }
         }
