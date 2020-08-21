@@ -38,27 +38,32 @@ z2 = z0 + grid_z*dx + dx * K
 
 count = 0
 
+
+
 @njit('f8[:, :, :](f8, f8, f8)', parallel=True, nogil=True)
 def rho(x, y, z):
     C_1 = (2.0*K*dx)**-3.0
     C_2 = math.cos(math.pi / (K * dx)
     
 	temp = np.zeros((grid_x, grid_y, grid_z))
+    
 	for i in prange(grid_x):
-    C_x1 = (i*dx+x0)-x
-    C_x2 = C_x1**2.0
+        C_x1 = (i*dx+x0)-x
+        C_x2 = C_x1**2.0
     
 		for j in range(grid_y):
-        C_y1 = (j*dx+y0)-y
-        C_y2 = C_y1**2.0
+            C_y1 = (j*dx+y0)-y
+            C_y2 = C_y1**2.0
         
 			for k in range(grid_z):
-            C_z1 = (k*dx+z0)-z
-            C_z2 = C_z1**2.0
+                C_z1 = (k*dx+z0)-z
+                C_z2 = C_z1**2.0
             
-				if math.sqrt(C_x1+C_y1+C_z1) < K * dx:
+				if math.sqrt(C_x2 + C_y2 + C_z2) < K * dx:
 					temp[i,j,k] = C_1 * (1.0 + C_2 * C_x1) * (1.0 + C_2 * C_y1) * (1.0 + C_2 * C_z1)
 	return temp
+
+
 
 for num in range(int(file_num)):
 	step = int(start_step) + int(num) * int(dump_step)
