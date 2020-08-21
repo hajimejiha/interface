@@ -38,7 +38,7 @@ def histgram():
         
         rho = np.zeros(grid_x*grid_y*grid_z)
         
-        print("Now Step:"+str(step))
+
 
         for line in open("rho_D." + str(step) +".txt","r"):
             lineCount += 1
@@ -74,105 +74,96 @@ def histgram():
 
 
 
-def interface():
-    for num in range(int(file_num)):
-        step = int(start_step) + int(num) * int(dump_step)
-        itr = 0
-        lineCount = 0
-        rho_z = 0.0
-        rho_z_old = 0.0
-        chack = 0
-        
-        print("Now Step:"+str(step))
+def interface(step):
+    itr = 0
+    lineCount = 0
+    rho_z = 0.0
+    rho_z_old = 0.0
+    chack = 0
+    
+    for line in open("rho_D." + str(step) +".txt","r"):
+        lineCount += 1
+        if lineCount < 3:
+            continue
 
-        for line in open("rho_D." + str(step) +".txt","r"):
-            lineCount += 1
-            if lineCount < 3:
-                continue
+        if (lineCount - 2) % grid_z == 0:
+            itr += 1
+            rho_z = 0.0
+            rho_z_old = 0.0
+            chack = 0
 
-            if (lineCount - 2) % grid_z == 0:
-                itr += 1
-                rho_z = 0.0
-                rho_z_old = 0.0
-                chack = 0
+        if chack == 0:
+            data = line.split()
 
-            if chack == 0:
-                data = line.split()
+            rho_z_old = rho_z
+            rho_z = float(data[3])
 
+            if (lineCount - 2) % grid_z == 1:
                 rho_z_old = rho_z
-                rho_z = float(data[3])
 
-                if (lineCount - 2) % grid_z == 1:
-                    rho_z_old = rho_z
+            if rho_z < rho_center < rho_z_old:
+                interface_z[0, itr] = float(data[0])
+                interface_z[1, itr] = float(data[1])
+                interface_z[2, itr] = float(data[2]) + dx *  (rho_center - rho_z) / (rho_z_old - rho_z)
+                chack = 1
 
-                if rho_z < rho_center < rho_z_old:
-                    interface_z[0, itr] = float(data[0])
-                    interface_z[1, itr] = float(data[1])
-                    interface_z[2, itr] = float(data[2]) + dx *  (rho_center - rho_z) / (rho_z_old - rho_z)
-                    chack = 1
+    with open("interface_Z." + str(step) + ".xyz",mode="w") as f:
+        f.write(str(grid_x*grid_y) + "\nInterface")
+        for i in range(grid_x*grid_y):
+            f.write("\n"+"X "+str(interface_z[0, i])+" "+str(interface_z[1, i])+" "+str(interface_z[2, i]))
 
-        with open("interface_Z." + str(step) + ".xyz",mode="w") as f:
-            f.write(str(grid_x*grid_y) + "\nInterface")
-            for i in range(grid_x*grid_y):
-                f.write("\n"+"X "+str(interface_z[0, i])+" "+str(interface_z[1, i])+" "+str(interface_z[2, i]))
 
-	
-        
-def rho_comp():
+
+def rho_comp(step):
     div = 3
     length_threshold = 5.0
+        
+    for i in range(grid_x-1):
+        for j in range(grid_y):
+            point_length = length(interface_z[0, i*grid_y+j], \
+                      interface_z[0, (i+1)*grid_y+j], \
+                      interface_z[1, i*grid_y+j], \
+                      interface_z[1, (i+1)*grid_y+j], \
+                      interface_z[2, i*grid_y+j], \
+                      interface_z[2, (i+1)*grid_y+j])
+
+            if point_length > length_threshold:
+                for k in range(div-1):
+                    x = (interface_z[0, i*grid_y+j] + interface_z[0, (i+1)*grid_y+j]) / div * (k+1)
+                    y = (interface_z[1, i*grid_y+j] + interface_z[1, (i+1)*grid_y+j]) / div * (k+1)
+                    z = (interface_z[2, i*grid_y+j] + interface_z[2, (i+1)*grid_y+j]) / div * (k+1)
+                    with open("interface_z." + str(step) + ".xyz", mode="a") as f:
+                        f.write("\n"+"A "+str(x)+" "+str(y)+" "+str(z))
     
-    for num in range(int(file_num)):
-        step = int(start_step) + int(num) * int(dump_step)
-        lineCount = 0
-        
-        with open("add_z." + str(step) + ".xyz", mode="w") as f0:
-            f0.write("type x y z")
-        
-        print("Now Step:"+str(step))
-        
-        for i in range(grid_x-1):
-            for j in range(grid_y):
-                point_length = length(interface_z[0, i*grid_y+j], \
-                          interface_z[0, (i+1)*grid_y+j], \
-                          interface_z[1, i*grid_y+j], \
-                          interface_z[1, (i+1)*grid_y+j], \
-                          interface_z[2, i*grid_y+j], \
-                          interface_z[2, (i+1)*grid_y+j])
+    for i in range(grid_x):
+        for j in range(grid_y-1):
+            point_length2 = length(interface_z[0, i*grid_y+j], \
+                      interface_z[0, i*grid_y+(j+1)], \
+                      interface_z[1, i*grid_y+j], \
+                      interface_z[1, i*grid_y+(j+1)], \
+                      interface_z[2, i*grid_y+j], \
+                      interface_z[2, i*grid_y+(j+1)])
 
-                if point_length > length_threshold:
-                    for k in range(div-1):
-                        x = (interface_z[0, i*grid_y+j] + interface_z[0, (i+1)*grid_y+j]) / div * (k+1)
-                        y = (interface_z[1, i*grid_y+j] + interface_z[1, (i+1)*grid_y+j]) / div * (k+1)
-                        z = (interface_z[2, i*grid_y+j] + interface_z[2, (i+1)*grid_y+j]) / div * (k+1)
-                        with open("add_z." + str(step) + ".xyz", mode="a") as f0:
-                            f0.write("\n"+"A "+str(x)+" "+str(y)+" "+str(z))
-        
-        for i in range(grid_x):
-            for j in range(grid_y-1):
-                point_length2 = length(interface_z[0, i*grid_y+j], \
-                          interface_z[0, i*grid_y+(j+1)], \
-                          interface_z[1, i*grid_y+j], \
-                          interface_z[1, i*grid_y+(j+1)], \
-                          interface_z[2, i*grid_y+j], \
-                          interface_z[2, i*grid_y+(j+1)])
-
-                if point_length2 > length_threshold:
-                    for k in range(div-1):
-                        x = (interface_z[0, i*grid_y+j] + interface_z[0, i*grid_y+(j+1)]) / div * (k+1)
-                        y = (interface_z[1, i*grid_y+j] + interface_z[1, i*grid_y+(j+1)]) / div * (k+1)
-                        z = (interface_z[2, i*grid_y+j] + interface_z[2, i*grid_y+(j+1)]) / div * (k+1)
-                        with open("add_z." + str(step) + ".xyz", mode="a") as f0:
-                            f0.write("\n"+"A "+str(x)+" "+str(y)+" "+str(z))
+            if point_length2 > length_threshold:
+                for k in range(div-1):
+                    x = (interface_z[0, i*grid_y+j] + interface_z[0, i*grid_y+(j+1)]) / div * (k+1)
+                    y = (interface_z[1, i*grid_y+j] + interface_z[1, i*grid_y+(j+1)]) / div * (k+1)
+                    z = (interface_z[2, i*grid_y+j] + interface_z[2, i*grid_y+(j+1)]) / div * (k+1)
+                    with open("interface_z." + str(step) + ".xyz", mode="a") as f:
+                        f.write("\n"+"A "+str(x)+" "+str(y)+" "+str(z))
 
 
 
 if __name__ == '__main__':
     print("Histgram")
     histgram()
-
-    print("Interface")
-    interface()
     
-    print("Complement Point")
-    rho_comp()
+    for num in range(int(file_num)):
+        step = int(start_step) + int(num) * int(dump_step)
+        print("Now Step:"+str(step))
+        
+        print("Interface")
+        interface(step)
+        
+        print("Complement Point")
+        rho_comp(step)
