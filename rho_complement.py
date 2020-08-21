@@ -27,7 +27,7 @@ for num in range(int(file_num)):
 	
 	print("Now Step:"+str(step))
 
-	for line in open("interface_Z_" + str(step) + ".xyz",mode="r"):
+	for line in open("interface_Z." + str(step) + ".xyz",mode="r"):
 		lineCount += 1
 		data = line.split()
 		
@@ -54,7 +54,7 @@ for num in range(int(file_num)):
 					x = (interface_z[0, i*grid_y+j] + interface_z[0, (i+1)*grid_y+j]) / div * (k+1)
 					y = (interface_z[1, i*grid_y+j] + interface_z[1, (i+1)*grid_y+j]) / div * (k+1)
 					z = (interface_z[2, i*grid_y+j] + interface_z[2, (i+1)*grid_y+j]) / div * (k+1)
-					with open("add_z_" + str(step) + ".xyz", mode="a") as f0:
+					with open("add_z." + str(step) + ".xyz", mode="a") as f0:
 						f0.write("\n"+"A "+str(x)+" "+str(y)+" "+str(z))
 	
 	for i in range(grid_x):
@@ -71,5 +71,5 @@ for num in range(int(file_num)):
 					x = (interface_z[0, i*grid_y+j] + interface_z[0, i*grid_y+(j+1)]) / div * (k+1)
 					y = (interface_z[1, i*grid_y+j] + interface_z[1, i*grid_y+(j+1)]) / div * (k+1)
 					z = (interface_z[2, i*grid_y+j] + interface_z[2, i*grid_y+(j+1)]) / div * (k+1)
-					with open("add_z_" + str(step) + ".xyz", mode="a") as f0:
+					with open("add_z." + str(step) + ".xyz", mode="a") as f0:
 						f0.write("\n"+"A "+str(x)+" "+str(y)+" "+str(z))

@@ -22,12 +22,12 @@ grid_x = 260
 grid_y = 265
 grid_z = 240
 
-x_center = 100.0
-y_center = 100.0
+x_center = (-2.6094400009644420e-01 + 2.9680005700009639e+02)/2.0
+y_center = (-1.2665453803565583e+00 + 3.0217111738035612e+02)/2.0
 
 x0 = x_center - (grid_x/2)*dx
 y0 = y_center - (grid_y/2)*dx
-z0 = 0.0
+z0 = 20.0
 
 x1 = x0 - dx * K
 x2 = x_center + (grid_x/2)*dx + dx * K
@@ -73,7 +73,7 @@ for num in range(int(file_num)):
 
 	print("\nNow Step:"+str(step))
 
-	for line in open(str(step) +".dmp","r"):
+	for line in open("ice."str(step) +".dmp","r"):
 		lineCount += 1
 		if lineCount < 10:
 			continue
@@ -89,7 +89,7 @@ for num in range(int(file_num)):
 				count += 1
 				rho_D += rho(X, Y, Z)
 
-	with open("rho_D_"+str(step)+".txt",mode="w") as f:
+	with open("rho_D."+str(step)+".txt",mode="w") as f:
 		f.write("step:"+str(step)+" atoms:"+str(count)+" dx:"+str(dx)+" K:"+str(K))
 		for i in range(grid_x):
 			for j in range(grid_y):

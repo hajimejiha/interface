@@ -9,26 +9,26 @@
 
 #define PI 3.14159265359
 
-double rho_D[200][200][200]; //グローバル変数
+double rho_D[260][265][240]; //グローバル変数
  
 int main(int argc, char *argv[]){
     //変更するパラメータ
     constexpr double dx = 1.0; //メッシュ間隔
     constexpr double K = 10.0; //粗視化パラメータ
 
-    constexpr int grid_x = 250; //グリッド数
-    constexpr int grid_y = 250;
-    constexpr int grid_z = 250;
+    constexpr int grid_x = 260; //グリッド数
+    constexpr int grid_y = 265;
+    constexpr int grid_z = 240;
 
-    constexpr double x_center = 100.0; //中心位置
-    constexpr double y_center = 100.0;
+    constexpr double x_center = (-2.6094400009644420e-01 + 2.9680005700009639e+02)/2.0; //中心位置
+    constexpr double y_center = (-1.2665453803565583e+00 + 3.0217111738035612e+02)/2.0;
 
-    constexpr double z_0 = 50.0; //グリッド最下点
+    constexpr double z_0 = 20.0; //グリッド最下点
     
-    const char* const dump_name_1 = "mydump_"; //lammpsダンプファイル名
+    const char* const dump_name_1 = "ice,"; //lammpsダンプファイル名
     const char* const dump_name_2 = ".dmp";
     
-    const char* const rho_name_1 = "rho_D_"; //出力ファイル名
+    const char* const rho_name_1 = "rho_D."; //出力ファイル名
     const char* const rho_name_2 = ".txt";
     
     const char* const dump_data = "%*d %d %*lf %lf %lf %lf %*lf %*lf %*lf %*lf"; //lammpsダンプファイルのフォーマット
