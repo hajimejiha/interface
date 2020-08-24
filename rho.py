@@ -7,7 +7,6 @@ args = sys.argv
 start_step = int(args[1])
 dump_step = int(args[2])
 file_num = int(args[3])
-comp_bool = args[4]
 
 grid_x = 260
 grid_y = 265
@@ -121,6 +120,8 @@ def interface(step, rho_center):
 
 
 def rho_comp(step):
+    count = 0
+    lineCount = 0
     div = 3
     length_threshold = 5.0
         
@@ -135,6 +136,7 @@ def rho_comp(step):
 
             if point_length > length_threshold:
                 for k in range(div-1):
+                    count += 1
                     x = (interface_z[0, i*grid_y+j] + interface_z[0, (i+1)*grid_y+j]) / div * (k+1)
                     y = (interface_z[1, i*grid_y+j] + interface_z[1, (i+1)*grid_y+j]) / div * (k+1)
                     z = (interface_z[2, i*grid_y+j] + interface_z[2, (i+1)*grid_y+j]) / div * (k+1)
@@ -152,11 +154,25 @@ def rho_comp(step):
 
             if point_length2 > length_threshold:
                 for k in range(div-1):
+                    count += 1
                     x = (interface_z[0, i*grid_y+j] + interface_z[0, i*grid_y+(j+1)]) / div * (k+1)
                     y = (interface_z[1, i*grid_y+j] + interface_z[1, i*grid_y+(j+1)]) / div * (k+1)
                     z = (interface_z[2, i*grid_y+j] + interface_z[2, i*grid_y+(j+1)]) / div * (k+1)
                     with open("interface_z." + str(step) + ".xyz", mode="a") as f:
                         f.write("\n"+"A "+str(x)+" "+str(y)+" "+str(z))
+                        
+    with open("interface_z_comp." + str(step) + ".xyz",mode="w") as f:
+        f.write(str(grid_x*grid_y+count) + "\nInterface")
+        for i in range(grid_x*grid_y):
+            f.write("\n"+"X "+str(interface_z[0, i])+" "+str(interface_z[1, i])+" "+str(interface_z[2, i]))
+        
+        for line in open("interface_z." + str(step) +".xyz","r"):
+            lineCount += 1
+            
+            if lineCount < 3:
+                continue
+                
+            f.write(line)
 
 
 
@@ -172,6 +188,5 @@ if __name__ == '__main__':
         print("Interface")
         interface(step, rho_center)
         
-        if comp_bool == True:
-            print("Complement Point")
-            rho_comp(step)
+        print("Complement Point")
+        rho_comp(step)
