@@ -7,16 +7,20 @@ args = sys.argv
 start_step = int(args[1])
 dump_step = int(args[2])
 file_num = int(args[3])
+comp_bool = args[4]
 
 grid_x = 260
 grid_y = 265
 grid_z = 240
 
+x_center = (-2.6094400009644420e-01 + 2.9680005700009639e+02)/2.0
+y_center = (-1.2665453803565583e+00 + 3.0217111738035612e+02)/2.0
+
+dx = 1.0
+
 x0 = x_center - (grid_x/2)*dx
 y0 = y_center - (grid_y/2)*dx
 z0 = 20.0
-
-dx = 1.0
 
 interface_z = np.zeros((3, grid_x*grid_y))
 
@@ -32,14 +36,14 @@ def histgram():
     bin_num = 1000
     hist_ave = np.zeros(bin_num+1)
     
-    for num in range(int(file_num)):
-        step = int(start_step) + int(num) * int(dump_step)
+    for num in range(file_num):
+        step = start_step + num * dump_step
+        print("Now Step:"+str(step))
+        
         lineCount = 0
         
         rho = np.zeros(grid_x*grid_y*grid_z)
         
-
-
         for line in open("rho_D." + str(step) +".txt","r"):
             lineCount += 1
             if lineCount < 3:
@@ -57,7 +61,7 @@ def histgram():
         for i in range(bin_num):
             hist_ave[i] += hist[i]/float(file_num)
 
-        with open("histgram_"+str(step)+"_rho_D.txt",mode="w") as f:
+        with open("histgram."+str(step)+".rho_D.txt",mode="w") as f:
             for i in range(bin_num):
                 f.write("\n"+str(hist[i])+" "+str(bins[i]))
             f.write("\n0 "+str(bins[bin_num]))
@@ -71,10 +75,12 @@ def histgram():
         f.write("rho_center:"+str(rho_center))
         for i in range(bin_num+1):
             f.write("\n"+str(hist_ave[i])+" "+str(bins[i]))
+    
+    return rho_center
 
 
 
-def interface(step):
+def interface(step, rho_center):
     itr = 0
     lineCount = 0
     rho_z = 0.0
@@ -107,7 +113,7 @@ def interface(step):
                 interface_z[2, itr] = float(data[2]) + dx *  (rho_center - rho_z) / (rho_z_old - rho_z)
                 chack = 1
 
-    with open("interface_Z." + str(step) + ".xyz",mode="w") as f:
+    with open("interface_z." + str(step) + ".xyz",mode="w") as f:
         f.write(str(grid_x*grid_y) + "\nInterface")
         for i in range(grid_x*grid_y):
             f.write("\n"+"X "+str(interface_z[0, i])+" "+str(interface_z[1, i])+" "+str(interface_z[2, i]))
@@ -156,14 +162,16 @@ def rho_comp(step):
 
 if __name__ == '__main__':
     print("Histgram")
-    histgram()
+    rho_center = histgram()
+    print("")
     
-    for num in range(int(file_num)):
-        step = int(start_step) + int(num) * int(dump_step)
+    for num in range(file_num):
+        step = start_step + num * dump_step
         print("Now Step:"+str(step))
         
         print("Interface")
-        interface(step)
+        interface(step, rho_center)
         
-        print("Complement Point")
-        rho_comp(step)
+        if comp_bool == True:
+            print("Complement Point")
+            rho_comp(step)
