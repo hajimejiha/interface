@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
 
     constexpr double z_0 = 20.0; //グリッド最下点
     
-    const char* const dump_name_1 = "ice,"; //lammpsダンプファイル名
+    const char* const dump_name_1 = "ice."; //lammpsダンプファイル名
     const char* const dump_name_2 = ".dmp";
     
     const char* const rho_name_1 = "rho_D."; //出力ファイル名
